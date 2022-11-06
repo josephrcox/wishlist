@@ -41,12 +41,11 @@ const listObject = {
         wishlist_items.id = `${this.title}_wishlist_items`;
         wishlist.appendChild(wishlist_items);
 
-
-
         document.getElementById("wishlist_grid").appendChild(wishlist);
     },
 
     addItem(item) {
+        console.log(item)
         let wishlist_items = document.getElementById(`${this.title}_wishlist_items`);
         let wishlist_item = document.createElement('li');
         wishlist_item.classList.add('wishlist_item');
@@ -77,8 +76,34 @@ const listObject = {
                 }
             });
             wishlist_item.appendChild(deleteButton);
+        } else {
+            // if item is not personal, add a button to purchase it
+            let purchaseButton = document.createElement("button");
+            purchaseButton.classList.add('purchaseItem');
+            wishlist_item.appendChild(purchaseButton);
+            if (item.purchased_by.length > 0) {
+                purchaseButton.innerHTML = "Purchased by "+item.purchased_by;
+                purchaseButton.disabled = true;
+            } else {
+                purchaseButton.innerHTML = "Mark as purchased";
+                purchaseButton.addEventListener("click", async() => {
+                    let res = await fetch('/api/item/purchase', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            item_id: item._id,
+                            user_id: this.user_id
+                        })
+                    });
+                    let data = await res.json();
+                    if (data.success) {
+                        purchaseButton.innerHTML = "Purchased!";
+                    } else {
+                        console.log("Error purchasing item");
+                    }
+                });
+            }
         }
-        
+    
 
         wishlist_items.appendChild(wishlist_item);
 

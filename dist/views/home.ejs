@@ -1,14 +1,16 @@
 
 <div class="subheader">
-    <div class="new_item_form">
-        <label for="name">New Wishlist Item</label>
+    <div id="expand_newitem"><img src="../../dist/css/caret.svg" id="collapse_expand_arrow">   New Wishlist Item</div>
+    <div class="new_item_form" style="padding: 0px;">
+        <label for="friend">Wish your ❤️ out! </label>
         <input type="text" name="name" id="name" placeholder="A shiny new car" autocomplete="off" maxlength="24">
         <label for="url">Link (optional)</label>
         <input type="url" name="link" id="link" placeholder="https://www....." autocomplete="off">
         <button type="submit" id="submit_newitem">Add to Wishlist</button>
     </div>
-    <div class="friend_form">
-        <label for="friend">Add a friend (by email)</label>
+    <div id="expand_addfriend"><img src="../../dist/css/caret.svg" id="collapse_expand_arrow">   Add a friend (by email)</div>
+    <div class="friend_form" style="padding: 0px;">
+        <label for="friend">Help your bestie out</label>
         <div id="friend_form_tooltip"></div>
         <input type="email" name="friend" id="friend" placeholder="tom@gmail.com" autocomplete="off">
         <button type="submit" id="submit_addfriend">Send request</button>
@@ -24,3 +26,35 @@
     
     </div> -->
 </div>
+
+<script>
+    let expand_newitem = document.getElementById("expand_newitem")
+    let new_item_form = document.querySelector(".new_item_form")
+    expand_newitem.addEventListener('click', async function() {
+        new_item_form.style.maxHeight = new_item_form.style.maxHeight ? null : new_item_form.scrollHeight + "px"
+        if (new_item_form.style.padding == "0px") {
+            new_item_form.style.padding = "10px"
+            expand_newitem.style.color = "lime";
+            expand_newitem.children[0].style.transform = "rotate(90deg)"
+        } else {
+            new_item_form.style.padding = "0px"
+            expand_newitem.style.color = "white";
+            expand_newitem.children[0].style.transform = "rotate(0deg)"
+        }
+    });
+    let expand_addfriend = document.getElementById("expand_addfriend")
+    let friend_form = document.querySelector(".friend_form")
+    expand_addfriend.addEventListener('click', async function() {
+        friend_form.style.maxHeight = friend_form.style.maxHeight ? null : friend_form.scrollHeight + "px"
+        if (friend_form.style.padding == "0px") {
+            friend_form.style.padding = "10px"
+            expand_addfriend.style.color = "lime";
+            expand_addfriend.children[0].style.transform = "rotate(90deg)"
+        } else {
+            friend_form.style.padding = "0px"
+            expand_addfriend.style.color = "white";
+            expand_addfriend.children[0].style.transform = "rotate(0deg)"
+        }
+    });
+
+</script>

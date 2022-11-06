@@ -1,23 +1,15 @@
-const mongoose = require('mongoose')
-
-const historySchema = new mongoose.Schema({
-    user: {type:String, required:true},
-    action: {type: String, required: true},
-    part: {type: String, required: true},
-    date: {type: Date, default: Date.now}
-});
+const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
     name: {type: String, required: true},
     link: {type: String, required: false},
-    purchased_by: {type: String, required: false},
-    history: {type: Array, required: false},
+    purchased_by: {type: String, required: false, default:""},
 });
 
 const userSchema = new mongoose.Schema(
     {
         name:{type:String, required:true},
-        email:{type:String, required:true},
+        email:{type:String, required:true },
         friends:{type:Array, required:true, default:[]},
         items:[itemSchema]
     },

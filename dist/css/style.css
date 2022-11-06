@@ -13,10 +13,16 @@ body {
   font-family: 'localLora', sans-serif;
 }
 
+#collapse_expand_arrow {
+  height: 20px;
+
+  transition: all 0.3s;
+}
+
 .wishlist_block {
-  width: 90vw;
+  width: 93vw;
   border: 1px solid black;
-  max-width: 300px;
+  max-width: 225px;
   word-wrap: normal;
   border-radius: 15px;
   margin: 10px;
@@ -37,6 +43,15 @@ body {
   margin-left: -35px;
 }
 
+.expanded {
+  max-height: 300px;
+  overflow: visible;
+  padding-top: 10px;
+  transition: all 0.25s ease-in-out;
+  transform-origin: left top;
+  transform: scaleY(1);
+}
+
 li {
 	margin: 0;
 	padding: 12px 0 6px 12px;
@@ -53,9 +68,10 @@ li {
   color: rgb(31, 237, 31);
   font-size: 65px;
   transition: all 1s;
+  margin-bottom: 10px;
 }
 
-.new_item_form label {
+.new_item_form label, label {
   font-style: italic;
   font-weight: 700;
 }
@@ -90,19 +106,31 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgb(209, 209, 209);
-  border-radius: 35px;
-  width: auto;
-  padding: 20px;
-  max-width: 350px;
+  background-color: rgb(157, 46, 46);
+  border-radius: 10px;
+  width: 80vw;
+  padding: 0px;
+  max-width: 170px;
+  font-size: 13px;
+  align-self: center;
+  color: white;
+  transition: all 0.4s;
+  max-height: 0px;
+  overflow: hidden;
+  margin-top: 0px;
 }
+input {
+  background-color: white;
+  color: black;
+}
+
 
 .subheader {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   gap: 10px;
-  transition: all 1s;
+  transition: all 0.4s;
 }
 
 #logout {
@@ -137,12 +165,40 @@ h2 {
   color: red;
 }
 
+#wishlist_grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#expand_newitem, #expand_addfriend {
+  display: flex;
+  justify-content: start;
+  align-content: center;
+  text-align: center;
+  align-items: center;
+  color: white;
+  font-weight: 700;
+}
+
+img {
+  margin-right: 10px
+}
+
 @media screen and (max-width: 600px) {
   .subheader {
   flex-direction: column;
   }
   .title-header {
+    font-size: 48px;
+    word-break: keep-all;
+  }
+}
+@media screen and (max-width: 300px) {
+  .title-header {
     font-size: 24px;
+    word-break: keep-all;
   }
 }
 

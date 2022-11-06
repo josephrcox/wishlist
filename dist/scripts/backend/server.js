@@ -96,7 +96,7 @@ app.post('/api/auth/login', async (req,res) => {
   } else {
     // new user, check, and create the account
     // check if the string is only letters
-    let regex = [A-Za-z];
+    let regex = /^[A-Za-z]+$/;
     if (body.name.match(regex)) {
       console.log("name passes regex")
       user = await User.create({
@@ -155,6 +155,7 @@ app.post('/api/item/create', async (req,res) => {
       user.items.push({
         name: body.name,
         link: body.link,
+        purchased_by:"",
       });
       await user.save();
       // await setHistory(user.items[user.items.length-1].id, body.token, "created", "item", body.token);
@@ -179,12 +180,17 @@ app.post('/api/item/create', async (req,res) => {
 });
 
 app.get('/api/items/get', async (req,res) => {
-  let token = req.headers.cookie.split('=')[1];
-  let user_token = jwt.verify(token, JWT_SECRET);
   try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
     let user = await User.findById(user_token.id);
 
     let items_array = [];
+    let scrubbed_items = [];
+    for (let i=0; i<user.items.length; i++) {
+      scrubbed_items.push(user.items[i])
+      scrubbed_items[i].purchased_by = "";
+    }
     items_array.push([user_token.name, user.items, true, user_token.id]);
     user.friends = uniq_fast(user.friends)
     await user.save();
@@ -227,9 +233,9 @@ app.get('/api/items/get', async (req,res) => {
 
 app.post('/api/item/delete', async (req,res) => {
   let body = JSON.parse(req.body)
-  let token = req.headers.cookie.split('=')[1];
-  let user_token = jwt.verify(token, JWT_SECRET);
   try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
     let user = await User.findById(user_token.id);
     if (user) {
       user.items = user.items.filter(item => item.id != body.item_id);
@@ -254,6 +260,43 @@ app.post('/api/item/delete', async (req,res) => {
   
 });
 
+app.post('/api/item/purchase', async (req,res) => {
+  let body = JSON.parse(req.body)
+  // user_id, item_id
+  try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
+    let buyer = await User.findById(user_token.id);
+    if (buyer) {
+      let user = await User.findById(body.user_id);
+      if (user) {
+        for (let i=0; i<user.items.length; i++) {
+          if (user.items[i].id == body.item_id) {
+            user.items[i].purchased_by = buyer.email;
+            await user.save();
+            
+            res.json({
+              success: true,
+            });
+          }
+        }
+      } else {
+        // user not found
+      }
+    } else {
+      // buyer not found
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+      });
+    }
+  }
+
+});
+
 function uniq_fast(a) {
   var seen = {};
   var out = [];
@@ -275,41 +318,33 @@ app.post('/api/friend/add', async(req,res) => {
   let user_token = jwt.verify(token, JWT_SECRET);
 
   try {
-    let user = await User.findOne({id:user_token.id});
+    let user = await User.findById(user_token.id);
     let new_friend = await User.findOne({email:body.email});
+
     if (user.id == new_friend.id) {
       return res.json({success: false, code: 400, msg: "You can't add yourself as a friend"})
     } 
+    else if (user.friends.includes(new_friend.id)) {
+      return res.json({success: false, code: 400, msg: "You are already friends with this user"})
+    }
+    else if (!new_friend) {
+      return res.json({success: false, code: 400, msg: "Your friend has to sign up first"})
+    }
+    else {
+      user.friends.push(new_friend.id);
+      user.friends = uniq_fast(user.friends)
+      await user.save();
 
-    if (user && new_friend) {
-      if (!user.friends.includes(new_friend.id)) {
-        user.friends.push(new_friend.id)
-        user.friends = uniq_fast(user.friends)
-        await user.save();
+      new_friend.friends.push(user_token.id);
+      new_friend.friends = uniq_fast(new_friend.friends)
+      await new_friend.save();
 
-        new_friend.friends.push(user.id)
-        new_friend.friends = uniq_fast(new_friend.friends)
-        await new_friend.save();
-
-        
-
-        res.json({
-          success: true,
-          friend: user.friends[user.friends.length - 1]
-        });
-
-      } else {
-        res.json({
-          success: false,
-          msg: "You are already friends"
-        });
-      }
-    } else {
       res.json({
-        success: false,
-        msg: "Your friend has to sign up first"
+        success: true,
       });
     }
+
+
   } catch(err) {
     console.log(err)
     if (err) {
