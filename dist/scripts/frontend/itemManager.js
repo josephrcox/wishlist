@@ -1,58 +1,88 @@
 import { getPage } from "./page.js";
 
-const itemObject = {
-    name: "",
-    link: "",
-    id: "",
-    personal: false,
-    creator: "",
+export let WISHLISTS = [];
+
+const listObject = {
+    title:"",
+    personal:false,
+    user_id:"",
 
     display() {
-        let item = document.createElement("li");
-        item.id = this.id;
-        item.classList.add("wishlist_item");
+        let wishlist = document.createElement('div');
+        wishlist.classList.add('wishlist_block');
+        wishlist.id = this.user_id;
 
-        let a;
-
-        if (this.link.length > 0) {
-            a = document.createElement("a");
-            a.href = this.link;
-        } else {
-            a = document.createElement("span");
-        }
-        a.innerHTML = this.name;
-        item.appendChild(a);
-
-        let deleteButton = document.createElement("button");
-        deleteButton.classList.add('deleteItem');
-        deleteButton.innerHTML = "Delete";
-        deleteButton.addEventListener("click", () => {
-            this.delete();
-        });
-        item.appendChild(deleteButton);
-
-        let wishlist_items;
+        let wishlist_title = document.createElement('h2');
+        wishlist_title.innerHTML = this.title;
+        wishlist.appendChild(wishlist_title);
         if (this.personal) {
-            wishlist_items = document.getElementById("your_wishlist_items");
+            wishlist_title.innerHTML += " (you)";
         } else {
-            wishlist_items = document.getElementById(`${this.creator}_wishlist_items`);
+            let wishlist_delete = document.createElement('button');
+            wishlist_delete.innerHTML = "(-)";
+            wishlist_delete.classList.add('wishlist_delete');
+            wishlist_delete.addEventListener('click', async() => {
+                let res = await fetch('/api/friend/remove', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: this.user_id
+                    })
+                });
+                let data = await res.json();
+                if (data.success) {
+                    document.getElementById(this.user_id).remove();
+                }
+            });
+            wishlist_title.appendChild(wishlist_delete);
+        }
+
+
+        let wishlist_items = document.createElement('ul');
+        wishlist_items.id = `${this.title}_wishlist_items`;
+        wishlist.appendChild(wishlist_items);
+
+
+
+        document.getElementById("wishlist_grid").appendChild(wishlist);
+    },
+
+    addItem(item) {
+        let wishlist_items = document.getElementById(`${this.title}_wishlist_items`);
+        let wishlist_item = document.createElement('li');
+        wishlist_item.classList.add('wishlist_item');
+        wishlist_item.id = item._id+"_wishlist_item";
+        console.log(item.link)
+        if (item.link) {
+            wishlist_item.innerHTML = `<a href="${item.link}">${item.name}</a>`;
+        } else {
+            wishlist_item.innerHTML = item.name;
+        }
+
+        if (this.personal) {
+            let deleteButton = document.createElement("button");
+            deleteButton.classList.add('deleteItem');
+            deleteButton.innerHTML = "Delete";
+            deleteButton.addEventListener("click", async() => {
+                let res = await fetch('/api/item/delete', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        item_id: item._id,
+                    })
+                });
+                let data = await res.json();
+                if (data.success) {
+                    document.getElementById(`${item._id}_wishlist_item`).remove();
+                } else {
+                    console.log("Error deleting item");
+                }
+            });
+            wishlist_item.appendChild(deleteButton);
         }
         
-        wishlist_items.appendChild(item);
-    }, 
 
-    async delete() {
-        let res = await fetch('/api/item/delete', {
-            method: 'POST',
-            body: JSON.stringify({
-                item_id: this.id,
-            })
-        });
-        let data = await res.json();
-        if (data.success) {
-            document.getElementById(this.id).remove();
-        }
-    }
+        wishlist_items.appendChild(wishlist_item);
+
+    }, 
 }
 
 export async function newItem() {
@@ -66,39 +96,45 @@ export async function newItem() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                token: localStorage.getItem("token"),
                 name: name.value,
                 link: link.value
             })
         });
         const data = await response.json();
+        console.log(data);
         if (data.success) {
-            let item = Object.create(itemObject);
-            item.name = data.item.name;
-            item.link = data.item.link;
-            item.id = data.item._id;
-            item.personal = true;
-
-            item.display();
-            name.value = "";
-            link.value = "";
+            for (let i=0;i<WISHLISTS.length;i++) {
+                if (WISHLISTS[i].personal) {
+                    WISHLISTS[i].addItem(data.item);
+                    
+                } else {
+                    console.log(WISHLISTS[i].title);
+                }
+            }
         }
 
     }
 }
 
-export async function loadYourItems() {
+export async function loadItems() {
     const response = await fetch("/api/items/get");
     const data = await response.json();
     if (data.success) {
+        document.getElementById('friend_form_tooltip').innerHTML = `Your email is ${data.your_email}`;
+        for (let i = 0; i < data.items.length; i++) {
+            let list = Object.create(listObject);
+            WISHLISTS.push(list);
+            list.items = data.items[i][1];
+            list.title = data.items[i][0];
+            list.personal = data.items[i][2];
+            list.user_id = data.items[i][3];
+            list.display();
+            for (let x=0;x<data.items[i][1].length;x++) {
+                list.addItem(data.items[i][1][x]);
+            }
         
-        for (let i=0;i<data.items.length;i++) {
-            var item = Object.create(itemObject);
-            item.name = data.items[i].name;
-            item.link = data.items[i].link;
-            item.id = data.items[i]._id;
-            item.personal = true;
-            item.display();
         }
+
+
     }
 }

@@ -23,6 +23,7 @@ export function init_login() {
                 if (data.success) {
                     isAuthenticated = true;
                     localStorage.setItem('token', data.token);
+                    localStorage.setItem('email', data.email);
                     window.location.href = '/';
                 } else {
                     isAuthenticated = false;

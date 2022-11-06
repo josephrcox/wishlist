@@ -9,6 +9,9 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken')
 const JWT_SECRET = process.env.JWT_SECRET
+const cookieParser = require('cookie-parser')
+
+app.use(cookieParser())
 
 app.set('view engine', 'ejs')
 app.set('views',path.join(__dirname, '/views'))
@@ -40,8 +43,14 @@ const User = require('../../models/user')
 // Document routes
 app.get('/', (req,res) => {
   try {
-    let token = req.headers.cookie.split('=')[1];
-    let user_token = jwt.verify(token, JWT_SECRET);
+    let token = req.cookies.token;
+    let user_token;
+    try {
+      user_token = jwt.verify(token, JWT_SECRET);
+    } catch(err) {
+      res.redirect('/login')
+    }
+
     if (user_token) {
       User.findById(user_token.id, (err, user) => {
         if (err || !user) {
@@ -85,6 +94,11 @@ app.post('/api/auth/login', async (req,res) => {
       
     return res.json({ status: 'ok', success: true, code: 200, data: token })
   } else {
+    // new user, check, and create the account
+    // check if the string is only letters
+    let regex = [A-Za-z];
+    if (body.name.match(regex)) {
+      console.log("name passes regex")
       user = await User.create({
         name: body.name,
         email: body.email,
@@ -102,16 +116,26 @@ app.post('/api/auth/login', async (req,res) => {
           httpOnly: true
       })
         
-      return res.json({ status: 'ok', success: true, code: 200, data: token })
+      return res.json({ status: 'ok', success: true, code: 200, data: token, email: body.email })
+    } else {
+      console.log("name fails regex")
+      return res.json({ status: 'ok', success: false, code: 200, data: "name fails regex" })
+    }
 
   };
 });
 
+app.post('/api/auth/logout', (req,res) => {
+  res.cookie('token', '', { maxAge: 1 })
+	res.redirect('/')
+})
+
 // Logic routes
 app.post('/api/item/create', async (req,res) => {
   let body = (req.body)
-  let token = req.headers.cookie.split('=')[1];
+  let token = req.cookies.token;
   let user_token = jwt.verify(token, JWT_SECRET);
+  console.log(user_token)
   
   // check if link is legit
   var expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
@@ -121,13 +145,12 @@ app.post('/api/item/create', async (req,res) => {
   }
 
   // check if name is legit
-  console.log(body.name.length)
   if (body.name.length < 1  || body.name.length > 50) {
     return res.json({success: false, code: 400, message: "Name must be between 1 and 50 characters"})
   }
 
   try {
-    let user = await User.findOne({id:user_token.id});
+    let user = await User.findById(user_token.id);
     if (user) {
       user.items.push({
         name: body.name,
@@ -159,11 +182,32 @@ app.get('/api/items/get', async (req,res) => {
   let token = req.headers.cookie.split('=')[1];
   let user_token = jwt.verify(token, JWT_SECRET);
   try {
-    let user = await User.findOne({id:user_token.id});
+    let user = await User.findById(user_token.id);
+
+    let items_array = [];
+    items_array.push([user_token.name, user.items, true, user_token.id]);
+    user.friends = uniq_fast(user.friends)
+    await user.save();
+
+    for (let i = 0;i < user.friends.length;i++) {
+      let friend = await User.findById(user.friends[i]);
+      if (friend) {
+        items_array.push([friend.name, friend.items, false, friend.id]);
+        friend.friends = uniq_fast(friend.friends)
+        await friend.save();
+      } else {
+        console.log("friend not found")
+        user.friends.splice(i, 1);
+        await user.save();
+      }
+
+    }
+
     if (user) {
       res.json({
         success: true,
-        items: user.items
+        items: items_array, 
+        your_email: user.email
       });
     } else {
       res.json({
@@ -186,9 +230,8 @@ app.post('/api/item/delete', async (req,res) => {
   let token = req.headers.cookie.split('=')[1];
   let user_token = jwt.verify(token, JWT_SECRET);
   try {
-    let user = await User.findOne({id:user_token.id});
+    let user = await User.findById(user_token.id);
     if (user) {
-      console.log(user.items[0].id, body.item_id)
       user.items = user.items.filter(item => item.id != body.item_id);
       await user.save();
       // await setHistory(body.id, body.token, "deleted", "item", body.token);
@@ -209,6 +252,119 @@ app.post('/api/item/delete', async (req,res) => {
     }
   }
   
+});
+
+function uniq_fast(a) {
+  var seen = {};
+  var out = [];
+  var len = a.length;
+  var j = 0;
+  for(var i = 0; i < len; i++) {
+       var item = a[i];
+       if(seen[item] !== 1) {
+             seen[item] = 1;
+             out[j++] = item;
+       }
+  }
+  return out;
+}
+
+app.post('/api/friend/add', async(req,res) => {
+  let body = JSON.parse(req.body)
+  let token = req.cookies.token;
+  let user_token = jwt.verify(token, JWT_SECRET);
+
+  try {
+    let user = await User.findOne({id:user_token.id});
+    let new_friend = await User.findOne({email:body.email});
+    if (user.id == new_friend.id) {
+      return res.json({success: false, code: 400, msg: "You can't add yourself as a friend"})
+    } 
+
+    if (user && new_friend) {
+      if (!user.friends.includes(new_friend.id)) {
+        user.friends.push(new_friend.id)
+        user.friends = uniq_fast(user.friends)
+        await user.save();
+
+        new_friend.friends.push(user.id)
+        new_friend.friends = uniq_fast(new_friend.friends)
+        await new_friend.save();
+
+        
+
+        res.json({
+          success: true,
+          friend: user.friends[user.friends.length - 1]
+        });
+
+      } else {
+        res.json({
+          success: false,
+          msg: "You are already friends"
+        });
+      }
+    } else {
+      res.json({
+        success: false,
+        msg: "Your friend has to sign up first"
+      });
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+        msg:JSON.stringify(err)
+      });
+    }
+  }
+  
+})
+
+app.post('/api/friend/remove', async(req,res) => {
+  let body = JSON.parse(req.body)
+  let token = req.cookies.token;
+  let user_token = jwt.verify(token, JWT_SECRET);
+
+  try {
+    let user = await User.findById(user_token.id);
+    let friend = await User.findById(body.id);
+    if (user && friend) {
+      if (user.friends.includes(friend.id)) {
+        user.friends = user.friends.filter(friend => friend != body.id)
+        user.friends = uniq_fast(user.friends)
+        await user.save();
+
+        friend.friends = friend.friends.filter(friend => friend != user.id)
+        friend.friends = uniq_fast(friend.friends)
+        await friend.save();
+
+        res.json({
+          success: true,
+        });
+
+      } else {
+        res.json({
+          success: false,
+          message: "Not friends"
+        });
+      }
+    } else {
+      res.json({
+        success: false,
+        msg: "Your friend has to sign up first"
+      });
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+        msg:JSON.stringify(err)
+      });
+    }
+  }
 });
 
 async function setHistory(item_id, user_id, action, part, by) {

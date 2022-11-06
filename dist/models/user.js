@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     {
         name:{type:String, required:true},
         email:{type:String, required:true},
+        friends:{type:Array, required:true, default:[]},
         items:[itemSchema]
     },
     { collection: 'users', timestamps:true}

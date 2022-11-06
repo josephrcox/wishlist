@@ -22,14 +22,19 @@ body {
   margin: 10px;
   background-color: white;
   color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .wishlist_item {
   text-align: left;
-
+  margin-right: 5px;
   display: flex;
   justify-content: space-between;
   padding-right: 10px;
+  border-top: 1px dotted #f0f0f0;
+  margin-left: -35px;
 }
 
 li {
@@ -47,19 +52,8 @@ li {
   text-align: center;
   color: rgb(31, 237, 31);
   font-size: 65px;
+  transition: all 1s;
 }
-
-.new_item_form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgb(209, 209, 209);
-  border-radius: 35px;
-  width: auto;
-  padding: 20px;
-  max-width: 350px;
-}
-
 
 .new_item_form label {
   font-style: italic;
@@ -91,3 +85,64 @@ button {
 .deleteItem:hover {
   opacity: 100%;
 }
+
+.new_item_form, .friend_form, .login_form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(209, 209, 209);
+  border-radius: 35px;
+  width: auto;
+  padding: 20px;
+  max-width: 350px;
+}
+
+.subheader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 1s;
+}
+
+#logout {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 10px;
+  background-color: gray;
+}
+
+
+.wishlist_delete {
+  margin-left: 15px;
+  transform: translateY(-5px);
+  background-color: red;
+}
+
+#friend_form_tooltip {
+  position: relative;;
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+h2 {
+  margin-bottom: 5px;
+}
+
+#friend_logs {
+  margin-top: 10px;
+  font-style: italic;
+  color: red;
+}
+
+@media screen and (max-width: 600px) {
+  .subheader {
+  flex-direction: column;
+  }
+  .title-header {
+    font-size: 24px;
+  }
+}
+

@@ -1,14 +1,26 @@
 
-<div class="new_item_form">
-    <label for="name">New Wishlist Item</label>
-    <input type="text" name="name" id="name" placeholder="A shiny new car">
-    <label for="url">Link (optional)</label>
-    <input type="url" name="link" id="link" placeholder="https://www.....">
-    <button type="submit" id="submit_newitem">Add to Wishlist</button>
+<div class="subheader">
+    <div class="new_item_form">
+        <label for="name">New Wishlist Item</label>
+        <input type="text" name="name" id="name" placeholder="A shiny new car" autocomplete="off" maxlength="24">
+        <label for="url">Link (optional)</label>
+        <input type="url" name="link" id="link" placeholder="https://www....." autocomplete="off">
+        <button type="submit" id="submit_newitem">Add to Wishlist</button>
+    </div>
+    <div class="friend_form">
+        <label for="friend">Add a friend (by email)</label>
+        <div id="friend_form_tooltip"></div>
+        <input type="email" name="friend" id="friend" placeholder="tom@gmail.com" autocomplete="off">
+        <button type="submit" id="submit_addfriend">Send request</button>
+        <span id="friend_logs"></span>
+
+    </div>
 </div>
 
-<div id="your_wishlist" class="wishlist_block">
-    <h2>Your Wishlist</h2>
-    <ul id="your_wishlist_items">
-
+<div id="wishlist_grid">
+    <!-- <div id="your_wishlist" class="wishlist_block">
+        <h2>Your Wishlist</h2>
+        <ul id="your_wishlist_items">
+    
+    </div> -->
 </div>
