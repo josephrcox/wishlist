@@ -7,6 +7,7 @@ import { loadNotifications } from './notifications.js';
 export const qr_base = "https://chart.googleapis.com/chart?cht=qr&chs=180x180&choe=UTF-8&chl=";
 
 window.onload = () => {
+    console.log("window loaded")
     init_login();
     if (getPage() == '/') {
         const submit_newitem = document.getElementById("submit_newitem");
