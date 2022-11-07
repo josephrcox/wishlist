@@ -16,8 +16,8 @@ export function init_login() {
                 let res = await fetch('/api/auth/login', {
                     method: 'POST',
                     body: JSON.stringify({
-                        name: name.value,
-                        email: email.value
+                        name: name.value.toLowerCase(),
+                        email: email.value.toLowerCase()
                     })
                 });
                 let data = await res.json();

@@ -10,12 +10,12 @@ window.onload = () => {
     console.log("window loaded")
     init_login();
     if (getPage() == '/') {
-        // const submit_newitem = document.getElementById("submit_newitem");
-        // submit_newitem.addEventListener("click", newItem);
-        // const submit_addfriend = document.getElementById("submit_addfriend");
-        // submit_addfriend.addEventListener("click", addFriend);
+        const submit_newitem = document.getElementById("submit_newitem");
+        submit_newitem.addEventListener("click", newItem);
+        const submit_addfriend = document.getElementById("submit_addfriend");
+        submit_addfriend.addEventListener("click", addFriend);
 
         loadItems();
     }
-    // loadNotifications();
+    loadNotifications();
 }

@@ -5,7 +5,7 @@ export async function addFriend() {
         let res = await fetch('/api/friend/add', {
             method: 'POST',
             body: JSON.stringify({
-                email: friend_email.value
+                email: friend_email.value.toLowerCase()
             })
         });
         let data = await res.json();
