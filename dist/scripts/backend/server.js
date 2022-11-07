@@ -410,7 +410,6 @@ app.get('/api/notifications/get', async(req,res) => {
       });
     }
   } catch(err) {
-    console.log(err)
     if (err) {
       res.json({
         success: false,

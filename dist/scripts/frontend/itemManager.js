@@ -106,7 +106,7 @@ const listObject = {
             wishlist_item.appendChild(purchaseButton);
             if (item.purchased_by.length > 0) {
                 purchaseButton.innerHTML = "Purchased";
-                wishlist_item.classList.add('strikethrough')
+                wishlist_item.classList.add('strikethrough');
                 purchaseButton.disabled = true;
             } else {
                 purchaseButton.innerHTML = "Mark as purchased";
@@ -121,6 +121,7 @@ const listObject = {
                     let data = await res.json();
                     if (data.success) {
                         purchaseButton.innerHTML = "Purchased!";
+                        wishlist_item.classList.add('strikethrough');
                     } else {
                         console.log("Error purchasing item");
                     }
