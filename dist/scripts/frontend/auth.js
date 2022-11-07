@@ -1,4 +1,4 @@
-import { getPage } from "./page.js";
+import { getPage } from "/dist/scripts/frontend/page.js";
 
 export let token;
 export let isAuthenticated;

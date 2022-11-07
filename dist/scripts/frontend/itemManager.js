@@ -1,5 +1,5 @@
-import { getPage } from "./page.js";
-import { qr_base } from "./main.js";
+import { getPage } from "/dist/scripts/frontend/page.js";
+import { qr_base } from "/dist/scripts/frontend/main.js";
 
 export let WISHLISTS = [];
 
