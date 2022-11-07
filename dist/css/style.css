@@ -22,7 +22,7 @@ body {
 .wishlist_block {
   width: 93vw;
   border: 1px solid black;
-  max-width: 225px;
+  max-width: 300px;
   word-wrap: normal;
   border-radius: 15px;
   margin: 10px;
@@ -31,6 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  height: fit-content;
 }
 
 .wishlist_item {
@@ -42,6 +43,7 @@ body {
   border-top: 1px dotted #f0f0f0;
   margin-left: -35px;
   align-items: center;
+  word-wrap: anywhere;
 }
 
 .expanded {
