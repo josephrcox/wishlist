@@ -86,6 +86,7 @@ const listObject = {
                     let data = await res.json();
                     if (data.success) {
                         document.getElementById(`${item._id}_wishlist_item`).remove();
+                        window.location.reload();
                     } else {
                         console.log("Error deleting item");
                     }
@@ -151,6 +152,8 @@ export async function newItem() {
         const data = await response.json();
         console.log(data);
         if (data.success) {
+            name.value = "";
+            link.value = "";
             for (let i=0;i<WISHLISTS.length;i++) {
                 if (WISHLISTS[i].personal) {
                     WISHLISTS[i].addItem(data.item);
