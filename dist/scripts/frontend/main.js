@@ -2,6 +2,9 @@ import { newItem, loadItems } from './itemManager.js';
 import { getPage } from './page.js';
 import { init_login } from './auth.js';
 import { addFriend } from './friends.js';
+import { loadNotifications } from './notifications.js';
+
+export const qr_base = "https://chart.googleapis.com/chart?cht=qr&chs=180x180&choe=UTF-8&chl=";
 
 window.onload = () => {
     init_login();
@@ -10,17 +13,8 @@ window.onload = () => {
         submit_newitem.addEventListener("click", newItem);
         const submit_addfriend = document.getElementById("submit_addfriend");
         submit_addfriend.addEventListener("click", addFriend);
-        const logout = document.getElementById("logout");
-        logout.addEventListener("click", async() => {
-            let res = await fetch('/api/auth/logout', {
-                method: 'POST'
-            });
-            let data = await res.json();
-            if (data.success) {
-                window.location.href = '/';
-            }
-        });
 
         loadItems();
     }
+    loadNotifications();
 }

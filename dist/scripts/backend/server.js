@@ -62,7 +62,7 @@ app.get('/', (req,res) => {
       })
     } else {
       console.log('no token')
-      res.redirect('/login')
+      
     }
   } catch(err) {
     console.log(err)
@@ -71,6 +71,7 @@ app.get('/', (req,res) => {
 
 
 })
+
 app.get('/login', (req,res) => {
   res.render('login.ejs')
 })
@@ -185,15 +186,16 @@ app.get('/api/items/get', async (req,res) => {
     let user_token = jwt.verify(token, JWT_SECRET);
     let user = await User.findById(user_token.id);
 
+    user.friends = uniq_fast(user.friends)
+    await user.save();
+
     let items_array = [];
     let scrubbed_items = [];
     for (let i=0; i<user.items.length; i++) {
       scrubbed_items.push(user.items[i])
       scrubbed_items[i].purchased_by = "";
     }
-    items_array.push([user_token.name, user.items, true, user_token.id]);
-    user.friends = uniq_fast(user.friends)
-    await user.save();
+    items_array.push([user_token.name, scrubbed_items, true, user_token.id]);
 
     for (let i = 0;i < user.friends.length;i++) {
       let friend = await User.findById(user.friends[i]);
@@ -238,9 +240,14 @@ app.post('/api/item/delete', async (req,res) => {
     let user_token = jwt.verify(token, JWT_SECRET);
     let user = await User.findById(user_token.id);
     if (user) {
+      let item_to_be_deleted = user.items.id(body.item_id);
+      console.log(item_to_be_deleted)
+      let notifyMSG = `${user_token.name} deleted ${item_to_be_deleted.name}, which you marked as purchased. This was their reasoning for deletion: ${body.message}`
+      notify(item_to_be_deleted.purchased_by, notifyMSG)
+
       user.items = user.items.filter(item => item.id != body.item_id);
       await user.save();
-      // await setHistory(body.id, body.token, "deleted", "item", body.token);
+      
       res.json({
         success: true,
       });
@@ -296,21 +303,6 @@ app.post('/api/item/purchase', async (req,res) => {
   }
 
 });
-
-function uniq_fast(a) {
-  var seen = {};
-  var out = [];
-  var len = a.length;
-  var j = 0;
-  for(var i = 0; i < len; i++) {
-       var item = a[i];
-       if(seen[item] !== 1) {
-             seen[item] = 1;
-             out[j++] = item;
-       }
-  }
-  return out;
-}
 
 app.post('/api/friend/add', async(req,res) => {
   let body = JSON.parse(req.body)
@@ -402,31 +394,141 @@ app.post('/api/friend/remove', async(req,res) => {
   }
 });
 
-async function setHistory(item_id, user_id, action, part, by) {
-  let user = await User.findById(user_id);
-  if (user) {
-    for (let i=0;i<user.items.length;i++) {
-      if (user.items[i].id == item_id) {
-        user.items[i].history.push({
-          user: by,
-          action: action,
-          part: part,
-          date: new Date()
-        })
-        user.save();
-      } else {
-
-      }
+app.get('/api/notifications/get', async(req,res) => {
+  try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
+    let user = await User.findById(user_token.id);
+    if (user) {
+      res.json({
+        success: true,
+        notifications: user.notifications
+      });
+    } else {
+      res.json({
+        success: false,
+      });
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+        msg:JSON.stringify(err)
+      });
     }
   }
-}
+  
+});
+
+app.post('/api/notifications/clear', async(req,res) => {
+  let body = JSON.parse(req.body)
+  console.log(req.body)
+  let token = req.cookies.token;
+  let user_token = jwt.verify(token, JWT_SECRET);
+
+  try {
+    let user = await User.findById(user_token.id);
+    if (user) {
+      user.notifications = user.notifications.filter(notif => notif.message != body.message)
+      user.notifications = [];
+      await user.save();
+      res.json({
+        success: true,
+        notifications:user.notifications
+      });
+    } else {
+      res.json({
+        success: false,
+      });
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+        msg:JSON.stringify(err)
+      });
+    }
+  }
+  
+});
+
+app.get('/add_friend/:email', async(req,res) => {
+  let new_friend_email = req.params.email;
+
+  try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
+
+    let user = await User.findById(user_token.id);
+    let new_friend = await User.findOne({email:new_friend_email});
+
+    if (user.id == new_friend.id) {
+      return res.json({success: false, code: 400, msg: "You can't add yourself as a friend"})
+    } 
+    else if (user.friends.includes(new_friend.id)) {
+      return res.json({success: false, code: 400, msg: "You are already friends with this user"})
+    }
+    else if (!new_friend) {
+      return res.json({success: false, code: 400, msg: "Your friend has to sign up first"})
+    }
+    else {
+      user.friends.push(new_friend.id);
+      user.friends = uniq_fast(user.friends)
+      await user.save();
+
+      new_friend.friends.push(user_token.id);
+      new_friend.friends = uniq_fast(new_friend.friends)
+      await new_friend.save();
+
+      res.redirect('/')
+    }
+
+  } catch(err) {
+    res.redirect('/login');
+  }
+
+
+});
+
+app.get('/notifications', (req,res) => {
+  res.render('notifications')
+});
 
 app.get("*", (req,res) => {
     res.redirect('/')
 })
-
  
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log('Listening on port', port);
 });
+
+function uniq_fast(a) {
+  var seen = {};
+  var out = [];
+  var len = a.length;
+  var j = 0;
+  for(var i = 0; i < len; i++) {
+       var item = a[i];
+       if(seen[item] !== 1) {
+             seen[item] = 1;
+             out[j++] = item;
+       }
+  }
+  return out;
+}
+
+async function notify(to, message) {
+  let user = await User.findOne({email:to});
+  if (user) {
+    user.notifications.push({
+      message: message,
+    });
+
+    await user.save();
+  } else {
+    console.log("No user found to notify")
+  }
+}

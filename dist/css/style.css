@@ -41,6 +41,7 @@ body {
   padding-right: 10px;
   border-top: 1px dotted #f0f0f0;
   margin-left: -35px;
+  align-items: center;
 }
 
 .expanded {
@@ -74,6 +75,7 @@ li {
 .new_item_form label, label {
   font-style: italic;
   font-weight: 700;
+  font-size: 19px;
 }
 
 input {
@@ -115,10 +117,65 @@ button {
   align-self: center;
   color: white;
   transition: all 0.4s;
+}
+
+.new_item_form, .friend_form {
   max-height: 0px;
   overflow: hidden;
   margin-top: 0px;
 }
+
+.hidden {
+  visibility: hidden;
+}
+
+
+#popup {
+  position: absolute;
+  background-color: white;
+  height: 75vh;
+  width: 75vw;
+  border-radius: 35px;
+  transform: translateY(30%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+#popup_title {
+  font-size: 26px;
+  margin-bottom: 15px;
+  border-bottom: 1px dotted #2b2727;
+  padding-bottom: 5px;
+}
+#popup_body {
+  color: #6a6a6a;
+  font-style: italic;
+  font-size: 18px;
+  width: 70%;
+}
+
+#popup_close {
+	display: block;
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	padding: 8px;
+	/*! border: 1px solid black; */
+	border-radius: 30px;
+	background-color: #808080;
+	color: white;
+	font-size: 25px;
+	cursor: pointer;
+}
+
+.login_form {
+  max-width: 600px;
+  padding: 15px;
+}
+
 input {
   background-color: white;
   color: black;
@@ -180,10 +237,52 @@ h2 {
   align-items: center;
   color: white;
   font-weight: 700;
+  cursor: pointer;
 }
 
 img {
   margin-right: 10px
+}
+
+.purchaseItem {
+  font-size: 12px;
+  font-style: italic;
+  transform: translateY(-2px);
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+#popup_input {
+  width: 80%;
+}
+
+#notifications_feed {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#qr {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.notification {
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 15px;
+}
+
+#notif_bell {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 10px;
+  background-color: #b0ff3d;
+  color: black;
 }
 
 @media screen and (max-width: 600px) {
@@ -199,6 +298,8 @@ img {
   .title-header {
     font-size: 24px;
     word-break: keep-all;
+    margin-top: 45px;
+    margin-bottom: 35px;
   }
 }
 

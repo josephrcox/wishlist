@@ -8,10 +8,21 @@
     <link rel="stylesheet" href="../../dist/css/style.css">
 </head>
 <body>
+    <button id="notif_bell"></button>
     <button id="logout">Logout</button>
     <h1 class="title-header">🎄wishlist🎄</h1>
     <%- body %>
     
     <script src="../../dist/scripts/frontend/main.js" type="module"></script>
+    <script>
+        const logout = document.getElementById("logout");
+        logout.addEventListener("click", async() => {
+            let res = await fetch('/api/auth/logout', {
+                method: 'POST'
+            });
+            let data = await res.json();
+            window.location.href = '/';
+        });
+    </script>
 </body>
 </html>

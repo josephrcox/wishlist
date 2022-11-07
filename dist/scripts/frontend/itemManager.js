@@ -1,4 +1,5 @@
 import { getPage } from "./page.js";
+import { qr_base } from "./main.js";
 
 export let WISHLISTS = [];
 
@@ -62,18 +63,39 @@ const listObject = {
             deleteButton.classList.add('deleteItem');
             deleteButton.innerHTML = "Delete";
             deleteButton.addEventListener("click", async() => {
-                let res = await fetch('/api/item/delete', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        item_id: item._id,
-                    })
+                const popup = document.getElementById("popup");
+                let poptitle = popup.children[0]
+                let popbody = popup.children[1]
+                let popclose = popup.children[2]
+                let popinput = popup.children[3]
+                let popsubmit = popup.children[4]
+
+                poptitle.innerHTML = "Are you sure you want to delete this item?";
+                popbody.innerHTML = "This action cannot be undone, and it may have already been purchased.<br/><br/>In case someone has already purchased this for you, please leave a message for them.";
+                popinput.style.display = "block";
+                popup.classList.toggle("hidden")
+                popinput.placeholder = "I bought this for myself during Black Friday..."
+                popsubmit.addEventListener("click", async() => {
+                    let res = await fetch('/api/item/delete', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            item_id: item._id,
+                            message: popinput.value
+                        })
+                    });
+                    let data = await res.json();
+                    if (data.success) {
+                        document.getElementById(`${item._id}_wishlist_item`).remove();
+                    } else {
+                        console.log("Error deleting item");
+                    }
                 });
-                let data = await res.json();
-                if (data.success) {
-                    document.getElementById(`${item._id}_wishlist_item`).remove();
-                } else {
-                    console.log("Error deleting item");
-                }
+
+                popclose.addEventListener("click", () => {
+                    popup.classList.add("hidden");
+                });
+
+                
             });
             wishlist_item.appendChild(deleteButton);
         } else {
@@ -82,7 +104,8 @@ const listObject = {
             purchaseButton.classList.add('purchaseItem');
             wishlist_item.appendChild(purchaseButton);
             if (item.purchased_by.length > 0) {
-                purchaseButton.innerHTML = "Purchased by "+item.purchased_by;
+                purchaseButton.innerHTML = "Purchased";
+                wishlist_item.classList.add('strikethrough')
                 purchaseButton.disabled = true;
             } else {
                 purchaseButton.innerHTML = "Mark as purchased";
@@ -146,6 +169,8 @@ export async function loadItems() {
     const data = await response.json();
     if (data.success) {
         document.getElementById('friend_form_tooltip').innerHTML = `Your email is ${data.your_email}`;
+        document.getElementById('qr').src = qr_base + window.location.href + "add_friend/" + data.your_email;
+        localStorage.setItem("email", data.your_email);
         for (let i = 0; i < data.items.length; i++) {
             let list = Object.create(listObject);
             WISHLISTS.push(list);
