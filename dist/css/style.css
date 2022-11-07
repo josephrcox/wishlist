@@ -114,7 +114,7 @@ button {
   border-radius: 10px;
   width: 80vw;
   padding: 0px;
-  max-width: 170px;
+  max-width: 350px;
   font-size: 13px;
   align-self: center;
   color: white;
@@ -191,6 +191,7 @@ input {
   background-color: white;
   color: black;
   max-width: 90%;
+  width: 90%;
 }
 
 
@@ -304,6 +305,12 @@ img {
   .title-header {
     font-size: 48px;
     word-break: keep-all;
+  }
+  .new_item_form, .friend_form {
+    max-width: unset;
+  }
+  input {
+    width: 90%;
   }
 }
 @media screen and (max-width: 300px) {
