@@ -230,6 +230,7 @@ input {
 
 h2 {
   margin-bottom: 5px;
+  padding-inline: 8px;
 }
 
 #friend_logs {
