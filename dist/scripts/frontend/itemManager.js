@@ -51,14 +51,19 @@ const listObject = {
         let wishlist_item = document.createElement('li');
         wishlist_item.classList.add('wishlist_item');
         wishlist_item.id = item._id+"_wishlist_item";
-        console.log(item.link)
+        if (item.price) {
+            wishlist_item.innerHTML = `$${item.price} - `;
+        }
         if (item.link) {
-            wishlist_item.innerHTML = `<a href="${item.link}">${item.name}</a>`;
+            wishlist_item.innerHTML += `<a href="${item.link}">${item.name}</a>`;
         } else {
-            wishlist_item.innerHTML = item.name;
+            wishlist_item.innerHTML += item.name;
         }
 
+
         if (this.personal) {
+            let sidebuttons = document.createElement('div');
+            sidebuttons.classList.add('sidebuttons');
             let deleteButton = document.createElement("button");
             deleteButton.classList.add('deleteItem');
             deleteButton.innerHTML = "Delete";
@@ -98,7 +103,38 @@ const listObject = {
 
                 
             });
-            wishlist_item.appendChild(deleteButton);
+
+            let editButton = document.createElement("button");
+            editButton.classList.add('editItem');
+            editButton.innerHTML = "Edit";
+            editButton.addEventListener("click", async() => {
+                if (!item.price) {
+                    item.price = 0;
+                }
+                let newname = prompt("Enter new name for item", item.name);
+                let newprice = prompt("Enter new price for item", item.price);
+                let newlink = prompt("Enter new link for item", item.link);
+                if (newname || newprice || newlink) {
+                    let res = await fetch('/api/item/edit', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            item_id: item._id,
+                            name: newname,
+                            price: newprice,
+                            link: newlink
+                        })
+                    });
+                    let data = await res.json();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        console.log("Error editing item");
+                    }
+                }
+            });
+            sidebuttons.append(deleteButton, editButton);
+            wishlist_item.append(sidebuttons);
+
         } else {
             // if item is not personal, add a button to purchase it
             let purchaseButton = document.createElement("button");
@@ -138,6 +174,7 @@ const listObject = {
 export async function newItem() {
     const name = document.getElementById("name");
     const link = document.getElementById("link"); 
+    const price = document.getElementById("price");
     if (getPage() === "/") {
         // on main home page, proceed
         const response = await fetch("/api/item/create", {
@@ -147,7 +184,8 @@ export async function newItem() {
             },
             body: JSON.stringify({
                 name: name.value,
-                link: link.value
+                link: link.value,
+                price: price.value
             })
         });
         const data = await response.json();

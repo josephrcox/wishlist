@@ -10,9 +10,11 @@
     <div id="expand_newitem"><img src="../../dist/css/caret.svg" id="collapse_expand_arrow">   New Wishlist Item</div>
     <div class="new_item_form" style="padding: 0px;">
         <label for="friend">Wish your ❤️ out! </label>
-        <input type="text" name="name" id="name" placeholder="A shiny new car" autocomplete="off" maxlength="24">
-        <label for="url">Link (optional)</label>
+        <input type="text" name="name" id="name" placeholder="A shiny new car" autocomplete="off" maxlength="100">
+        <label for="url">Link</label><span class="optional">(optional)</span>
         <input type="url" name="link" id="link" placeholder="https://www....." autocomplete="off">
+        <label for="price">Price in $</label><span class="optional">(optional)</span>
+        <input type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" name="price" id="price" placeholder="29.99" autocomplete="off" min="0.01" step="0.01" max="250000"/>
         <button type="submit" id="submit_newitem">Add to Wishlist</button>
     </div>
     <div id="expand_addfriend"><img src="../../dist/css/caret.svg" id="collapse_expand_arrow">   Add a friend (by email)</div>

@@ -145,8 +145,9 @@ app.post('/api/item/create', async (req,res) => {
     body.link = ""
   }
 
+
   // check if name is legit
-  if (body.name.length < 1  || body.name.length > 50) {
+  if (body.name.length < 1  || body.name.length > 101) {
     return res.json({success: false, code: 400, message: "Name must be between 1 and 50 characters"})
   }
 
@@ -156,6 +157,7 @@ app.post('/api/item/create', async (req,res) => {
       user.items.push({
         name: body.name,
         link: body.link,
+        price: body.price,
         purchased_by:"",
       });
       await user.save();
@@ -246,6 +248,46 @@ app.post('/api/item/delete', async (req,res) => {
       notify(item_to_be_deleted.purchased_by, notifyMSG)
 
       user.items = user.items.filter(item => item.id != body.item_id);
+      await user.save();
+      
+      res.json({
+        success: true,
+      });
+    } else {
+      res.json({
+        success: false,
+      });
+    }
+  } catch(err) {
+    console.log(err)
+    if (err) {
+      res.json({
+        success: false,
+      });
+    }
+  }
+  
+});
+
+app.post('/api/item/edit', async (req,res) => {
+  let body = JSON.parse(req.body)
+  console.log(body)
+  try {
+    let token = req.cookies.token;
+    let user_token = jwt.verify(token, JWT_SECRET);
+    let user = await User.findById(user_token.id);
+    if (user) {
+      let item_to_be_edited = user.items.id(body.item_id);
+      item_to_be_edited.name = body.name;
+
+      // check if price is legit
+      let price_regex = /^(?:0|[1-9]\d+|)?(?:.?\d{0,2})?$/;
+      if (!body.price.match(price_regex)) {
+        body.price = 0;
+      }
+
+      item_to_be_edited.price = body.price;
+      item_to_be_edited.link = body.link;
       await user.save();
       
       res.json({

@@ -22,7 +22,7 @@ body {
 .wishlist_block {
   width: 93vw;
   border: 1px solid black;
-  max-width: 300px;
+  max-width: fit-content;
   word-wrap: normal;
   border-radius: 15px;
   margin: 10px;
@@ -97,6 +97,9 @@ button {
   background-color:rgb(67, 177, 213);
   color:white;
   cursor: pointer;
+  word-wrap: break-word;
+  margin-left: 10px;
+  min-width: fit-content;
 }
 
 .deleteItem {
@@ -258,7 +261,6 @@ img {
 }
 
 .purchaseItem {
-  font-size: 12px;
   font-style: italic;
   transform: translateY(-2px);
 }
@@ -297,6 +299,22 @@ img {
   margin: 10px;
   background-color: #b0ff3d;
   color: black;
+}
+
+.input-currency:before {
+  position: absolute;
+  top: 0;
+  content:"$";
+  left: 5px;
+}
+
+.price_label {
+  font-size: 12px;
+  font-style: italic;
+}
+
+.sidebuttons {
+  min-width: fit-content;
 }
 
 @media screen and (max-width: 600px) {
