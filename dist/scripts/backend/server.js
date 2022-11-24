@@ -95,7 +95,11 @@ app.post('/api/auth/login', async (req,res) => {
       
     return res.json({ status: 'ok', success: true, code: 200, data: token })
   } else {
-    // new user, check, and create the account
+    let user = User.find({email: body.email});
+    if (user) {
+      return res.json({ status: 'ok', success: false, code: 200, data: "Email taken, or password/name combo is incorrect" })
+    } else {
+// new user, check, and create the account
     // check if the string is only letters
     let regex = /^[A-Za-z]+$/;
     if (body.name.match(regex)) {
@@ -122,7 +126,7 @@ app.post('/api/auth/login', async (req,res) => {
       console.log("name fails regex")
       return res.json({ status: 'ok', success: false, code: 200, data: "name fails regex" })
     }
-
+  }
   };
 });
 

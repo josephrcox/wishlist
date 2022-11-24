@@ -15,7 +15,7 @@ const listObject = {
 
         let wishlist_title = document.createElement('h2');
         wishlist_title.innerHTML = this.title;
-        wishlist.appendChild(wishlist_title);
+        wishlist.append(wishlist_title);
         if (this.personal) {
             wishlist_title.innerHTML += " (you)";
         } else {
@@ -41,18 +41,21 @@ const listObject = {
         let wishlist_items = document.createElement('ul');
         wishlist_items.id = `${this.title}_wishlist_items`;
         wishlist.appendChild(wishlist_items);
+        
 
         document.getElementById("wishlist_grid").appendChild(wishlist);
     },
 
     addItem(item) {
-        console.log(item)
         let wishlist_items = document.getElementById(`${this.title}_wishlist_items`);
         let wishlist_item = document.createElement('li');
         wishlist_item.classList.add('wishlist_item');
         wishlist_item.id = item._id+"_wishlist_item";
+        let wli_price = document.createElement('span');
+        wli_price.classList.add('price');
         if (item.price) {
-            wishlist_item.innerHTML = `$${item.price} - `;
+            wli_price.innerHTML = `$${item.price} `;
+            wishlist_item.appendChild(wli_price);
         }
         if (item.link) {
             wishlist_item.innerHTML += `<a href="${item.link}">${item.name}</a>`;

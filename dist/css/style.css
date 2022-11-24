@@ -80,6 +80,11 @@ li {
   font-size: 19px;
 }
 
+p {
+  padding-inline: 10px;
+  font-style: oblique;
+}
+
 input {
   all: unset;
   margin: 10px;
@@ -129,8 +134,10 @@ button {
   font-style: italic;
   font-variant: sub;
   padding-bottom: 10px;
-  background-color: white;
+  background-color: #fff;
   margin-top: 5px;
+  border-radius: 5px;
+  font-size: 15px;
 }
 
 .new_item_form, .friend_form {
@@ -309,13 +316,24 @@ img {
   left: 5px;
 }
 
-.price_label {
-  font-size: 12px;
-  font-style: italic;
+.price {
+  white-space: nowrap;
+}
+
+#logs {
+  color: yellow;
+  font-variant: all-small-caps;
+  margin-top: 11px;
 }
 
 .sidebuttons {
   min-width: fit-content;
+}
+
+
+.wishlist_item a {
+  text-align: center;
+  padding-inline: 7px;
 }
 
 @media screen and (max-width: 600px) {

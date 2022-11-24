@@ -28,6 +28,7 @@ export function init_login() {
                     localStorage.setItem('email', data.email);
                     window.location.href = '/';
                 } else {
+                    document.getElementById('logs').innerHTML = data.data;
                     isAuthenticated = false;
                 }
             }
