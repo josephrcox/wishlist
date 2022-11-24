@@ -1,3 +1,5 @@
+import { sendAnalyticalData } from "/dist/scripts/frontend/event_tracking.js";
+
 export async function addFriend() {
     let friend_email = document.getElementById("friend")
 
@@ -10,6 +12,7 @@ export async function addFriend() {
         });
         let data = await res.json();
         if (data.success) {
+            sendAnalyticalData('add_friend');
             window.location.href = '/';
         } else {
             // show message for 3 seconds

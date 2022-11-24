@@ -1,5 +1,6 @@
 import { getPage } from "/dist/scripts/frontend/page.js";
 import { qr_base } from "/dist/scripts/frontend/main.js";
+import { sendAnalyticalData } from "/dist/scripts/frontend/event_tracking.js";
 
 export let WISHLISTS = [];
 
@@ -159,6 +160,7 @@ const listObject = {
                     });
                     let data = await res.json();
                     if (data.success) {
+                        sendAnalyticalData('mark_as_purchased')
                         purchaseButton.innerHTML = "Purchased!";
                         wishlist_item.classList.add('strikethrough');
                     } else {
@@ -194,6 +196,7 @@ export async function newItem() {
         const data = await response.json();
         console.log(data);
         if (data.success) {
+            sendAnalyticalData('add_to_wishlist')
             name.value = "";
             link.value = "";
             for (let i=0;i<WISHLISTS.length;i++) {

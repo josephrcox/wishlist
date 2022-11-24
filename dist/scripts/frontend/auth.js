@@ -1,4 +1,5 @@
 import { getPage } from "/dist/scripts/frontend/page.js";
+import { sendAnalyticalData } from "/dist/scripts/frontend/event_tracking.js";
 
 export let token;
 export let isAuthenticated;
@@ -23,6 +24,7 @@ export function init_login() {
                 let data = await res.json();
                 console.log(data.success)
                 if (data.success) {
+                    sendAnalyticalData('login');
                     isAuthenticated = true;
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('email', data.email);
