@@ -224,7 +224,7 @@ input {
 
 .wishlist_delete {
   margin-left: 15px;
-  transform: translateY(-5px);
+  transform: translateY(0px);
   background-color: red;
 }
 
@@ -238,6 +238,13 @@ input {
 h2 {
   margin-bottom: 5px;
   padding-inline: 8px;
+  margin-top: 15px;
+  padding-inline: 20px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  padding-bottom: 5px;
 }
 
 #friend_logs {
@@ -298,6 +305,11 @@ img {
   border: 1px solid black;
   padding: 10px;
   border-radius: 15px;
+}
+
+
+.wishlist_block ul {
+  margin-top: 0px;
 }
 
 #notif_bell {

@@ -20,6 +20,20 @@ const listObject = {
         if (this.personal) {
             wishlist_title.innerHTML += " (you)";
         } else {
+            let wishlist_collapse = document.createElement('button');
+            wishlist_collapse.classList.add('wishlist_collapse');
+            wishlist_collapse.innerHTML = "Collapse";
+            wishlist_collapse.addEventListener('click', () => {
+                let wishlist_items = document.getElementById(`${this.title}_wishlist_items`);
+                if (wishlist_items.style.display == "none") {
+                    wishlist_items.style.display = "block";
+                    wishlist_collapse.innerHTML = "Collapse";
+                } else {
+                    wishlist_items.style.display = "none";
+                    wishlist_collapse.innerHTML = "Expand";
+                }  
+            });
+
             let wishlist_delete = document.createElement('button');
             wishlist_delete.innerHTML = "(-)";
             wishlist_delete.classList.add('wishlist_delete');
@@ -35,7 +49,7 @@ const listObject = {
                     document.getElementById(this.user_id).remove();
                 }
             });
-            wishlist_title.appendChild(wishlist_delete);
+            wishlist_title.append(wishlist_collapse,wishlist_delete);
         }
 
 
