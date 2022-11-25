@@ -80,6 +80,7 @@ app.get('/login', (req,res) => {
 app.post('/api/auth/login', async (req,res) => {
   let body = JSON.parse(req.body)
   let user = await User.findOne({name: body.name, email: body.email});
+  console.log(user)
   if (user) {
     const token = jwt.sign(
       {
@@ -95,33 +96,34 @@ app.post('/api/auth/login', async (req,res) => {
       
     return res.json({ status: 'ok', success: true, code: 200, data: token })
   } else {
-    let user = User.find({email: body.email});
-    if (user) {
+    let u = await User.findOne({email: body.email});
+    console.log(u)
+    if (u != null) {
       return res.json({ status: 'ok', success: false, code: 200, data: "Email taken, or password/name combo is incorrect" })
     } else {
-// new user, check, and create the account
-    // check if the string is only letters
-    let regex = /^[A-Za-z]+$/;
-    if (body.name.match(regex)) {
-      console.log("name passes regex")
-      user = await User.create({
-        name: body.name,
-        email: body.email,
-        items: []
-      });
-      const token = jwt.sign(
-        {
-          id: user._id,
-          name: user.name
-        },
-        JWT_SECRET, { expiresIn: "30days"}
-      )
-  
-      res.cookie("token", token, {
-          httpOnly: true
-      })
-        
-      return res.json({ status: 'ok', success: true, code: 200, data: token, email: body.email })
+      // new user, check, and create the account
+      // check if the string is only letters
+      let regex = /^[A-Za-z]+$/;
+      if (body.name.match(regex)) {
+        console.log("name passes regex")
+        user = await User.create({
+          name: body.name,
+          email: body.email,
+          items: []
+        });
+        const token = jwt.sign(
+          {
+            id: user._id,
+            name: user.name
+          },
+          JWT_SECRET, { expiresIn: "30days"}
+        )
+    
+        res.cookie("token", token, {
+            httpOnly: true
+        })
+          
+        return res.json({ status: 'ok', success: true, code: 200, data: token, email: body.email })
     } else {
       console.log("name fails regex")
       return res.json({ status: 'ok', success: false, code: 200, data: "name fails regex" })
