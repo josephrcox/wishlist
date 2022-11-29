@@ -278,6 +278,7 @@ img {
 .purchaseItem {
   font-style: italic;
   transform: translateY(-2px);
+  font-size: 12px;
 }
 
 .strikethrough {
@@ -330,6 +331,7 @@ img {
 
 .price {
   white-space: nowrap;
+  font-size: 11px;
 }
 
 #logs {
@@ -344,7 +346,7 @@ img {
 
 
 .wishlist_item a {
-  text-align: center;
+  text-align: left;
   padding-inline: 7px;
 }
 

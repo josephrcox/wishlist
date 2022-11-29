@@ -64,20 +64,27 @@ const listObject = {
     addItem(item) {
         let wishlist_items = document.getElementById(`${this.title}_wishlist_items`);
         let wishlist_item = document.createElement('li');
+        let left_side = document.createElement('div');
         wishlist_item.classList.add('wishlist_item');
         wishlist_item.id = item._id+"_wishlist_item";
         let wli_price = document.createElement('span');
         wli_price.classList.add('price');
-        if (item.price) {
-            wli_price.innerHTML = `$${item.price} `;
-            wishlist_item.appendChild(wli_price);
-        }
-        if (item.link) {
-            wishlist_item.innerHTML += `<a href="${item.link}">${item.name}</a>`;
+        if (item.price == null) {
+            item.price = "unset";
         } else {
-            wishlist_item.innerHTML += item.name;
+            wli_price.innerHTML = `$${item.price} `;
         }
 
+        wishlist_item.appendChild(wli_price);
+        let wli_name = document.createElement('span');
+
+        if (item.link) {
+            wli_name.innerHTML = `<a href="${item.link}">${item.name}</a>`;
+        } else {
+            wli_name.innerHTML = '<span>'+item.name+'</span>';
+        }
+        left_side.append(wli_price, wli_name);
+        wishlist_item.appendChild(left_side);
 
         if (this.personal) {
             let sidebuttons = document.createElement('div');
@@ -159,27 +166,48 @@ const listObject = {
             purchaseButton.classList.add('purchaseItem');
             wishlist_item.appendChild(purchaseButton);
             if (item.purchased_by.length > 0) {
-                purchaseButton.innerHTML = "Purchased";
-                wishlist_item.classList.add('strikethrough');
+                console.log(item.purchased_by);
+                // truncate item.purchased_by to 9 letters
+                let purchased_by = item.purchased_by;
+                if (purchased_by.length > 9) {
+                    purchased_by = purchased_by.substring(0,9) + "...";
+                }
+                if (item.purchased_by == localStorage.getItem("email")) {
+                    purchaseButton.innerHTML = "<span style='color:yellow;'>Purchased by you</span>";
+                } else {
+                    purchaseButton.innerHTML = "Purchased by " + purchased_by;
+                }
+
+                wishlist_item.children[1].classList.add('strikethrough');
                 purchaseButton.disabled = true;
             } else {
                 purchaseButton.innerHTML = "Mark as purchased";
                 purchaseButton.addEventListener("click", async() => {
-                    let res = await fetch('/api/item/purchase', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            item_id: item._id,
-                            user_id: this.user_id
-                        })
-                    });
-                    let data = await res.json();
-                    if (data.success) {
-                        sendAnalyticalData('mark_as_purchased')
-                        purchaseButton.innerHTML = "Purchased!";
-                        wishlist_item.classList.add('strikethrough');
+                    if (purchaseButton.dataset.purchasing == "true") {
+                        let res = await fetch('/api/item/purchase', {
+                            method: 'POST', 
+                            body: JSON.stringify({
+                                item_id: item._id,
+                                user_id: this.user_id
+                            })
+                        });
+                        let data = await res.json();
+                        if (data.success) {
+                            sendAnalyticalData('mark_as_purchased')
+                            purchaseButton.innerHTML = "Purchased!";
+                            wishlist_item.classList.add('strikethrough');
+                        } else {
+                            console.log("Error purchasing item");
+                        }
                     } else {
-                        console.log("Error purchasing item");
+                        purchaseButton.innerHTML = "Are you sure?";
+                        purchaseButton.dataset.purchasing = "true";
+                        setTimeout(() => {
+                            purchaseButton.innerHTML = "Mark as purchased";
+                            purchaseButton.dataset.purchasing = "false";
+                        }, 5000);
                     }
+                    
                 });
             }
         }
