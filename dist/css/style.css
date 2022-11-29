@@ -109,6 +109,7 @@ button {
 
 .deleteItem {
   opacity: 30%;
+  background-color: red;
 }
 .deleteItem:hover {
   opacity: 100%;
@@ -152,18 +153,20 @@ button {
 
 
 #popup {
-  position: absolute;
-  background-color: white;
-  height: 75vh;
-  width: 75vw;
+  position: fixed;
+  background-color: #a3ff00;
+  height: fit-content;
   border-radius: 35px;
-  transform: translateY(30%);
   z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   align-content: center;
   justify-content: center;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  border: 3px solid black;
+  background-color: ;
 }
 #popup_title {
   font-size: 26px;
@@ -179,17 +182,16 @@ button {
 }
 
 #popup_close {
-	display: block;
 	position: absolute;
 	top: 10px;
-	right: 20px;
+	right: 10px;
 	padding: 8px;
 	/*! border: 1px solid black; */
 	border-radius: 30px;
 	background-color: #808080;
 	color: white;
-	font-size: 25px;
 	cursor: pointer;
+	z-index: 100;
 }
 
 .login_form {
@@ -331,8 +333,9 @@ img {
 
 .price {
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
 }
+
 
 #logs {
   color: yellow;

@@ -69,10 +69,8 @@ const listObject = {
         wishlist_item.id = item._id+"_wishlist_item";
         let wli_price = document.createElement('span');
         wli_price.classList.add('price');
-        if (item.price == null) {
-            item.price = "unset";
-        } else {
-            wli_price.innerHTML = `$${item.price} `;
+        if (item.price != null) {
+            wli_price.innerHTML = `$${item.price} - `;
         }
 
         wishlist_item.appendChild(wli_price);
@@ -81,7 +79,7 @@ const listObject = {
         if (item.link) {
             wli_name.innerHTML = `<a href="${item.link}">${item.name}</a>`;
         } else {
-            wli_name.innerHTML = '<span>'+item.name+'</span>';
+            wli_name.innerHTML = item.name;
         }
         left_side.append(wli_price, wli_name);
         wishlist_item.appendChild(left_side);
@@ -94,9 +92,9 @@ const listObject = {
             deleteButton.innerHTML = "Delete";
             deleteButton.addEventListener("click", async() => {
                 const popup = document.getElementById("popup");
-                let poptitle = popup.children[0]
-                let popbody = popup.children[1]
-                let popclose = popup.children[2]
+                let poptitle = popup.children[1]
+                let popbody = popup.children[2]
+                let popclose = popup.children[0]
                 let popinput = popup.children[3]
                 let popsubmit = popup.children[4]
 
