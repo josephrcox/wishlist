@@ -22,6 +22,7 @@ const listObject = {
             let wishlist_share = document.createElement('button');
             wishlist_share.innerHTML = "Share publicly (copy to clipboard)";
             wishlist_share.addEventListener('click', () => {
+                sendAnalyticalData('share_wishlist');
                 let url = window.location.origin + "/?user=" + this.user_id;
                 navigator.clipboard.writeText(url);
                 wishlist_share.innerHTML = "Copied!";
@@ -188,6 +189,7 @@ const listObject = {
                     if (item.purchased_by.length == 0) {
                         let name = prompt(`To purchase, please leave your name. Reminder: ${this.title} will not see this.`);
                         if (name) {
+                            sendAnalyticalData('mark_as_purchased_guest');
                             let res = await fetch('/api/item/purchase', {
                                 method: 'POST',
                                 body: JSON.stringify({
@@ -210,6 +212,7 @@ const listObject = {
 
                 purchaseButton.innerHTML = "Check if purchased";
                 purchaseButton.addEventListener("click", () => {
+                    sendAnalyticalData('check_if_purchased');
                     let msg = ""
                     if (item.purchased_by.length > 0) {
                         msg = `'${item.name}' has already been purchased. Choose another gift :)`;
