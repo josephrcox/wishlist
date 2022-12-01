@@ -18,8 +18,7 @@ window.onload = () => {
         loadItems(user);
         document.querySelector('.signup_tip').style.display = '';
     } else {
-        document.querySelector('.signup_tip').style.display = 'none';
-        document.querySelector('.subheader').style.display = '';
+        
         on_specific_user_page = false;
         init_login();
         if (getPage() == '/') {

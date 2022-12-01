@@ -341,5 +341,5 @@ export async function loadItems(specific_user) {
 
 
     }
-    document.querySelector('.footer').style.opacity = 1;
+    document.querySelector('.subheader').style.display = '';
 }
