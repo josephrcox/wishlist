@@ -6,16 +6,28 @@ import { loadNotifications } from '/dist/scripts/frontend/notifications.js';
 
 export const qr_base = "https://chart.googleapis.com/chart?cht=qr&chs=180x180&choe=UTF-8&chl=";
 
-window.onload = () => {
-    console.log("window loaded")
-    init_login();
-    if (getPage() == '/') {
-        const submit_newitem = document.getElementById("submit_newitem");
-        submit_newitem.addEventListener("click", newItem);
-        const submit_addfriend = document.getElementById("submit_addfriend");
-        submit_addfriend.addEventListener("click", addFriend);
+export let on_specific_user_page = false;
 
-        loadItems();
+window.onload = () => {
+    console.log(window.location)
+    if (window.location.search.includes("?user=")) {
+        on_specific_user_page = true;
+        const user = window.location.search.split("?user=")[1];
+        document.querySelector('.subheader').style.display = 'none';
+        document.querySelector('#logout').style.display = 'none';
+        loadItems(user);
+    } else {
+        on_specific_user_page = false;
+        init_login();
+        if (getPage() == '/') {
+            const submit_newitem = document.getElementById("submit_newitem");
+            submit_newitem.addEventListener("click", newItem);
+            const submit_addfriend = document.getElementById("submit_addfriend");
+            submit_addfriend.addEventListener("click", addFriend);
+    
+            loadItems();
+        }
+        loadNotifications();
     }
-    loadNotifications();
+
 }

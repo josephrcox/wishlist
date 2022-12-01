@@ -1,5 +1,5 @@
 import { getPage } from "/dist/scripts/frontend/page.js";
-import { qr_base } from "/dist/scripts/frontend/main.js";
+import { qr_base, on_specific_user_page } from "/dist/scripts/frontend/main.js";
 import { sendAnalyticalData } from "/dist/scripts/frontend/event_tracking.js";
 
 export let WISHLISTS = [];
@@ -19,6 +19,17 @@ const listObject = {
         wishlist.append(wishlist_title);
         if (this.personal) {
             wishlist_title.innerHTML += " (you)";
+            let wishlist_share = document.createElement('button');
+            wishlist_share.innerHTML = "Share publicly (copy to clipboard)";
+            wishlist_share.addEventListener('click', () => {
+                let url = window.location.origin + "/?user=" + this.user_id;
+                navigator.clipboard.writeText(url);
+                wishlist_share.innerHTML = "Copied!";
+                setTimeout(() => {
+                    wishlist_share.innerHTML = "Share publicly (copy to clipboard)";
+                }, 2000);
+            });
+            wishlist.appendChild(wishlist_share);
         } else {
             let wishlist_collapse = document.createElement('button');
             wishlist_collapse.classList.add('wishlist_collapse');
@@ -49,7 +60,12 @@ const listObject = {
                     document.getElementById(this.user_id).remove();
                 }
             });
-            wishlist_title.append(wishlist_collapse,wishlist_delete);
+
+
+            if (!on_specific_user_page) {
+                wishlist_title.append(wishlist_collapse);
+                wishlist_title.append(wishlist_delete);
+            }
         }
 
 
@@ -160,54 +176,97 @@ const listObject = {
 
         } else {
             // if item is not personal, add a button to purchase it
+            let purchase_container = document.createElement('div');
             let purchaseButton = document.createElement("button");
             purchaseButton.classList.add('purchaseItem');
-            wishlist_item.appendChild(purchaseButton);
-            if (item.purchased_by.length > 0) {
-                console.log(item.purchased_by);
-                // truncate item.purchased_by to 9 letters
-                let purchased_by = item.purchased_by;
-                if (purchased_by.length > 9) {
-                    purchased_by = purchased_by.substring(0,9) + "...";
-                }
-                if (item.purchased_by == localStorage.getItem("email")) {
-                    purchaseButton.innerHTML = "<span style='color:yellow;'>Purchased by you</span>";
-                } else {
-                    purchaseButton.innerHTML = "Purchased by " + purchased_by;
-                }
-
-                wishlist_item.children[1].classList.add('strikethrough');
-                purchaseButton.disabled = true;
-            } else {
-                purchaseButton.innerHTML = "Mark as purchased";
-                purchaseButton.addEventListener("click", async() => {
-                    if (purchaseButton.dataset.purchasing == "true") {
-                        let res = await fetch('/api/item/purchase', {
-                            method: 'POST', 
-                            body: JSON.stringify({
-                                item_id: item._id,
-                                user_id: this.user_id
-                            })
-                        });
-                        let data = await res.json();
-                        if (data.success) {
-                            sendAnalyticalData('mark_as_purchased')
-                            purchaseButton.innerHTML = "Purchased!";
-                            wishlist_item.classList.add('strikethrough');
-                        } else {
-                            console.log("Error purchasing item");
+            purchase_container.appendChild(purchaseButton);
+            if (on_specific_user_page) {
+                let anon_purchase = document.createElement('button');
+                anon_purchase.innerHTML = "Purchase";
+                anon_purchase.classList.add('purchaseItem');
+                anon_purchase.addEventListener('click', async() => {
+                    if (item.purchased_by.length == 0) {
+                        let name = prompt(`To purchase, please leave your name. Reminder: ${this.title} will not see this.`);
+                        if (name) {
+                            let res = await fetch('/api/item/purchase', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    item_id: item._id,
+                                    user_id: this.user_id,
+                                    anon_buyer_name: name
+                                })
+                            });
+                            let data = await res.json();
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                console.log("Error purchasing item");
+                            }
                         }
-                    } else {
-                        purchaseButton.innerHTML = "Are you sure?";
-                        purchaseButton.dataset.purchasing = "true";
-                        setTimeout(() => {
-                            purchaseButton.innerHTML = "Mark as purchased";
-                            purchaseButton.dataset.purchasing = "false";
-                        }, 5000);
                     }
                     
                 });
+                purchase_container.appendChild(anon_purchase);
+
+                purchaseButton.innerHTML = "Check if purchased";
+                purchaseButton.addEventListener("click", () => {
+                    let msg = ""
+                    if (item.purchased_by.length > 0) {
+                        msg = `'${item.name}' has already been purchased. Choose another gift :)`;
+                    } else {
+                        msg = `'${item.name}' has not been purchased yet.`
+                    }
+                    alert(`${msg} \n\nRemember, ${this.title} doesn't know if it's been purchased.`);
+                });
+            } else {
+                if (item.purchased_by.length > 0) {
+                    console.log(item.purchased_by);
+                    // truncate item.purchased_by to 9 letters
+                    let purchased_by = item.purchased_by;
+                    if (purchased_by.length > 9) {
+                        purchased_by = purchased_by.substring(0,9) + "...";
+                    }
+                    if (item.purchased_by == localStorage.getItem("email")) {
+                        purchaseButton.innerHTML = "<span style='color:yellow;'>Purchased by you</span>";
+                    } else {
+                        purchaseButton.innerHTML = "Purchased by " + purchased_by;
+                    }
+    
+                    wishlist_item.children[0].children[1].classList.add('strikethrough');
+                    purchaseButton.disabled = true;
+                } else {
+                    purchaseButton.innerHTML = "Mark as purchased";
+                    purchaseButton.addEventListener("click", async() => {
+                        if (purchaseButton.dataset.purchasing == "true") {
+                            let res = await fetch('/api/item/purchase', {
+                                method: 'POST', 
+                                body: JSON.stringify({
+                                    item_id: item._id,
+                                    user_id: this.user_id
+                                })
+                            });
+                            let data = await res.json();
+                            if (data.success) {
+                                sendAnalyticalData('mark_as_purchased')
+                                purchaseButton.innerHTML = "Purchased!";
+                                wishlist_item.classList.add('strikethrough');
+                            } else {
+                                console.log("Error purchasing item");
+                            }
+                        } else {
+                            purchaseButton.innerHTML = "Are you sure?";
+                            purchaseButton.dataset.purchasing = "true";
+                            setTimeout(() => {
+                                purchaseButton.innerHTML = "Mark as purchased";
+                                purchaseButton.dataset.purchasing = "false";
+                            }, 5000);
+                        }
+                        
+                    });
+                }
             }
+            wishlist_item.appendChild(purchase_container);
+
         }
     
 
@@ -252,8 +311,11 @@ export async function newItem() {
     }
 }
 
-export async function loadItems() {
-    const response = await fetch("/api/items/get");
+export async function loadItems(specific_user) {
+    if (!specific_user) {
+        specific_user = null;
+    }
+    const response = await fetch("/api/items/get/" + specific_user);
     const data = await response.json();
     if (data.success) {
         document.getElementById('friend_form_tooltip').innerHTML = `Your email is ${data.your_email}`;

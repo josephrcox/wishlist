@@ -42,32 +42,39 @@ const User = require('../../models/user')
 
 // Document routes
 app.get('/', (req,res) => {
-  try {
-    let token = req.cookies.token;
-    let user_token;
+  //localhost:8080/?user=6368652eb2313ecb34ef649b
+  if (req._parsedOriginalUrl.search == null || !req._parsedOriginalUrl.search.includes("?user=")) {
     try {
-      user_token = jwt.verify(token, JWT_SECRET);
+      let token = req.cookies.token;
+      let user_token;
+      try {
+        user_token = jwt.verify(token, JWT_SECRET);
+      } catch(err) {
+        res.redirect('/login')
+      }
+  
+      if (user_token) {
+        User.findById(user_token.id, (err, user) => {
+          if (err || !user) {
+            res.redirect('/login')
+          } else {
+            let items = user.items;
+            res.render('home.ejs');
+          }
+        })
+      } else {
+        console.log('no token')
+        
+      }
     } catch(err) {
+      console.log(err)
       res.redirect('/login')
     }
-
-    if (user_token) {
-      User.findById(user_token.id, (err, user) => {
-        if (err || !user) {
-          res.redirect('/login')
-        } else {
-          let items = user.items;
-          res.render('home.ejs');
-        }
-      })
-    } else {
-      console.log('no token')
-      
-    }
-  } catch(err) {
-    console.log(err)
-    res.redirect('/login')
+  } else {
+    // specific user page
+    res.render('home.ejs');
   }
+  
 
 
 })
@@ -188,49 +195,67 @@ app.post('/api/item/create', async (req,res) => {
   
 });
 
-app.get('/api/items/get', async (req,res) => {
+app.get('/api/items/get/:specific_user', async (req,res) => {
+  const specific_user_id = req.params.specific_user
+  let specific_user = null
+  if (specific_user_id != "null") {
+    specific_user = await User.findById(specific_user_id)
+  }
+
   try {
-    let token = req.cookies.token;
-    let user_token = jwt.verify(token, JWT_SECRET);
-    let user = await User.findById(user_token.id);
-
-    user.friends = uniq_fast(user.friends)
-    await user.save();
-
-    let items_array = [];
-    let scrubbed_items = [];
-    for (let i=0; i<user.items.length; i++) {
-      scrubbed_items.push(user.items[i])
-      scrubbed_items[i].purchased_by = "";
-    }
-    items_array.push([user_token.name, scrubbed_items, true, user_token.id]);
-
-    for (let i = 0;i < user.friends.length;i++) {
-      let friend = await User.findById(user.friends[i]);
-      if (friend) {
-        items_array.push([friend.name, friend.items, false, friend.id]);
-        friend.friends = uniq_fast(friend.friends)
-        await friend.save();
-      } else {
-        console.log("friend not found")
-        user.friends.splice(i, 1);
-        await user.save();
-      }
-
-    }
-
-    if (user) {
+    if (specific_user) {
       res.json({
         success: true,
-        items: items_array, 
-        your_email: user.email
+        items: [[
+          specific_user.name,
+          specific_user.items,
+          false,
+          specific_user_id
+        ]]
       });
     } else {
-      res.json({
-        success: false,
-      });
-    }
-  } catch(err) {
+      let token = req.cookies.token;
+      let user_token = jwt.verify(token, JWT_SECRET);
+      let user = await User.findById(user_token.id);
+
+      user.friends = uniq_fast(user.friends)
+      await user.save();
+
+      let items_array = [];
+      let scrubbed_items = [];
+      for (let i=0; i<user.items.length; i++) {
+        scrubbed_items.push(user.items[i])
+        scrubbed_items[i].purchased_by = "";
+      }
+      items_array.push([user_token.name, scrubbed_items, true, user_token.id]);
+
+      for (let i = 0;i < user.friends.length;i++) {
+        let friend = await User.findById(user.friends[i]);
+        if (friend) {
+          items_array.push([friend.name, friend.items, false, friend.id]);
+          friend.friends = uniq_fast(friend.friends)
+          await friend.save();
+        } else {
+          console.log("friend not found")
+          user.friends.splice(i, 1);
+          await user.save();
+        }
+
+      }
+
+      if (user) {
+        res.json({
+          success: true,
+          items: items_array, 
+          your_email: user.email
+        });
+      } else {
+        res.json({
+          success: false,
+        });
+      }
+    
+  }} catch(err) {
     console.log(err)
     if (err) {
       res.json({
@@ -238,6 +263,8 @@ app.get('/api/items/get', async (req,res) => {
       });
     }
   }
+    
+    
   
 })
 
@@ -317,11 +344,24 @@ app.post('/api/item/edit', async (req,res) => {
 
 app.post('/api/item/purchase', async (req,res) => {
   let body = JSON.parse(req.body)
+  let token = null
+  let user_token = null
   // user_id, item_id
   try {
-    let token = req.cookies.token;
-    let user_token = jwt.verify(token, JWT_SECRET);
-    let buyer = await User.findById(user_token.id);
+    let buyer = null;
+    console.log(req)
+    if (body.anon_buyer_name != undefined) {
+      buyer = {
+        id: -1,
+        email: body.anon_buyer_name + "@guest.account",
+      }
+    } else {
+      token = req.cookies.token;
+      user_token = jwt.verify(token, JWT_SECRET);
+      buyer = await User.findById(user_token.id);
+    }
+
+
     if (buyer) {
       let user = await User.findById(body.user_id);
       if (user) {
