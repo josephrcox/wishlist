@@ -3,7 +3,7 @@ import { getPage } from '/dist/scripts/frontend/page.js';
 import { init_login } from '/dist/scripts/frontend/auth.js';
 import { addFriend } from '/dist/scripts/frontend/friends.js';
 import { loadNotifications } from '/dist/scripts/frontend/notifications.js';
-import { sendAnalyticalData } from '/dist/scripts/frontend/event_tracking.js';
+import { sendAnalyticalData } from "/dist/scripts/frontend/event_tracking.js";
 
 export const qr_base = "https://chart.googleapis.com/chart?cht=qr&chs=180x180&choe=UTF-8&chl=";
 
