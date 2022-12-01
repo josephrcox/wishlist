@@ -8,6 +8,7 @@ export function init_login() {
     console.log(getPage())
     if (getPage() == '/login') {
         console.log("on login page")
+
         const submit_login = document.getElementById('submit_login');
         const name = document.getElementById('name');
         const email = document.getElementById('email');
@@ -24,6 +25,7 @@ export function init_login() {
                 let data = await res.json();
                 console.log(data.success)
                 if (data.success) {
+                    document.querySelector('#logout').style.display = '';
                     sendAnalyticalData('login');
                     isAuthenticated = true;
                     localStorage.setItem('token', data.token);
@@ -35,7 +37,6 @@ export function init_login() {
                 }
             }
         });
-        
     }
     
 }

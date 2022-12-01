@@ -317,6 +317,7 @@ export async function newItem() {
 export async function loadItems(specific_user) {
     if (!specific_user) {
         specific_user = null;
+        document.querySelector('#logout').style.display = '';
     }
     const response = await fetch("/api/items/get/" + specific_user);
     const data = await response.json();
@@ -340,4 +341,5 @@ export async function loadItems(specific_user) {
 
 
     }
+    document.querySelector('.footer').style.opacity = 1;
 }

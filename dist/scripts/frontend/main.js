@@ -15,10 +15,11 @@ window.onload = () => {
         sendAnalyticalData('visit_as_guest');
         on_specific_user_page = true;
         const user = window.location.search.split("?user=")[1];
-        document.querySelector('.subheader').style.display = 'none';
-        document.querySelector('#logout').style.display = 'none';
         loadItems(user);
+        document.querySelector('.signup_tip').style.display = '';
     } else {
+        document.querySelector('.signup_tip').style.display = 'none';
+        document.querySelector('.subheader').style.display = '';
         on_specific_user_page = false;
         init_login();
         if (getPage() == '/') {

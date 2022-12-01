@@ -20,10 +20,18 @@
 </head>
 <body>
     <button id="notif_bell"></button>
-    <button id="logout">Logout</button>
-    <h1 class="title-header">🎄wishlist🎄</h1>
+    <button id="logout" style="display: none;">Logout</button>
+    <a href="/">
+        <h1 class="title-header">🎄wishlist🎄</h1>
+    </a>
     <h4 class="subtitle">The perfect app for sharing your holiday wishlist, and ensuring that nobody double-buys.</h4>
     <%- body %>
+
+    <footer>
+        <div class="footer" id="footer">
+            made with ❤️ in new hampshire, usa  ‧  <a class="github" href="https://github.com/mapleweekend/wishlist">github</a>
+        </div>
+    </footer>
     
     <script>
         const logout = document.getElementById("logout");

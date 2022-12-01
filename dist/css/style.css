@@ -294,6 +294,19 @@ img {
   width: 80%;
 }
 
+.footer {
+	transition: all 1s;
+	text-align: center;
+	color: white;
+	padding-top: 8px;
+	margin-top: 16px;
+	font-size: 12px;
+}
+
+.footer .github {
+	color: #f0ff3b;
+}
+
 #notifications_feed {
   display: flex;
   flex-direction: column;
@@ -324,6 +337,20 @@ img {
   margin: 10px;
   background-color: #b0ff3d;
   color: black;
+}
+
+
+.signup_tip {
+  background-color: lightgreen;
+  padding: 15px;
+  border-radius: 15px;
+  font-weight: 700;
+}
+
+a {
+  all:unset;
+  color:blue;
+  cursor: pointer;
 }
 
 .input-currency:before {
